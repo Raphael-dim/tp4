@@ -104,7 +104,7 @@ router.get("/profile", authenticateJWT, async (req, res) => {
 // Route pour éditer les informations du profil de l'utilisateur
 router.put("/profile", authenticateJWT, async (req, res) => {
   const userId = req.user.id; // ID de l'utilisateur provenant du token
-  const { email, password, about, experience, photo, phoneNumber, address, userType, horaires, price, location, iban } = req.body;
+  const { email, password, about, experience, photo, phoneNumber, address, userType, horaires, price, domaine, location, iban } = req.body;
 
   const connection = await DatabaseConnection.getInstance();
 
@@ -131,6 +131,7 @@ router.put("/profile", authenticateJWT, async (req, res) => {
   if (userType) updates.userType = userType;
   if (horaires) updates.horaires = horaires;
   if (price) updates.price = price;
+  if (domaine) updates.domaine = domaine;
   if (location) updates.location = location;
   if (iban) updates.iban = iban;
 
@@ -149,6 +150,21 @@ router.put("/profile", authenticateJWT, async (req, res) => {
 
   res.status(200).json({ message: "Profil mis à jour avec succès" });
 });
+
+router.get("/users", authenticateJWT, async (req, res) => {
+    const connection = await DatabaseConnection.getInstance();
+  
+    try {
+      const [users] = await connection.query(
+        "SELECT id, email, first_name, last_name, userType, domaine, location FROM Users"
+      );
+  
+      res.status(200).json(users);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des utilisateurs :", error);
+      res.status(500).json({ message: "Erreur interne du serveur" });
+    }
+  });
 
 
 export default router;

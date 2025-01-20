@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Users (
     userType VARCHAR(255) NOT NULL,
     horaires VARCHAR(255),
     price VARCHAR(255),
-
+    domaine VARCHAR(255),
     location VARCHAR(255),
     /* location : nombre (10 ou 20 ou 30) */
 

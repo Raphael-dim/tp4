@@ -7,6 +7,7 @@ import Profile from './pages/profile';
 import Header from './components/header';
 import { AuthProvider } from './contexts/authContext';
 import Annonce from './pages/annonce';
+import Feed from './pages/feed';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/annonce" element={<Annonce />} />
+            <Route path="/feed" element={<Feed />}/>
           </Routes>
         </div>
       </Router>

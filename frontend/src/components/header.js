@@ -32,6 +32,9 @@ function Header() {
                 </Typography>
                 {token ? (
                     <div>
+                        <Button href="/feed" color="inherit">
+                        Réseau
+                        </Button>
                         <Button color="inherit" onClick={handleProfilePage}>
                             {userEmail || "User"}
                         </Button>
@@ -40,9 +43,11 @@ function Header() {
                         </Button>
                     </div>
                 ) : (
-                    <Button href="/login">
+                    <div>
+                        <Button href="/login" color="inherit">
                         Se connecter
-                    </Button>
+                        </Button>
+                    </div>
                 )}
             </Toolbar>
         </AppBar>
