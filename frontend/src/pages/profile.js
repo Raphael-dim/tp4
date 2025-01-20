@@ -15,6 +15,7 @@ function Profile() {
         about: "",
         email: "",
         experience: "",
+        photo: "",
         phoneNumber: "",
         address: "",
         userType: "Apprenant",
@@ -54,6 +55,7 @@ function Profile() {
                     about: data.about || "",
                     email: data.email || "",
                     experience: data.experience || "",
+                    photo: data.photo || "",
                     phoneNumber: data.phoneNumber || "",
                     address: data.address || "",
                     userType: data.userType || "Apprenant",
@@ -84,9 +86,14 @@ function Profile() {
 
         // Validation du formulaire (exemple)
         const validationErrors = [];
-        if (!form.firstName) validationErrors.push({ field: "firstName", message: "Le prénom est requis" });
-        if (!form.lastName) validationErrors.push({ field: "lastName", message: "Le nom est requis" });
         if (!form.email) validationErrors.push({ field: "email", message: "L'email est requis" });
+        if (form.phoneNumber && !/^\d{10}$/.test(form.phoneNumber)) validationErrors.push({ field: "phoneNumber", message: "La saisie de votre champ est incorrecte, veuillez la modifier" });
+        if (form.userType === "Formateur") {
+            if (!form.horaires) validationErrors.push({ field: "horaires", message: "Les horaires sont requis" });
+            if (!form.price) validationErrors.push({ field: "price", message: "Le prix est requis" });
+            if (form.price && !/^\d+$/.test(form.price)) validationErrors.push({ field: "price", message: "Le prix doit être un nombre entier" });
+            if (!form.location) validationErrors.push({ field: "location", message: "Le lieu est requis" });
+        }
 
         if (validationErrors.length > 0) {
             setErrors(validationErrors);
@@ -119,13 +126,6 @@ function Profile() {
     return (
         <div style={{ maxWidth: 600, margin: "auto" }}>
             <Typography variant="h4" gutterBottom>Mon Profil</Typography>
-
-            {/* Affichage des erreurs */}
-            {errors.length > 0 && errors.map((err, index) => (
-                <Alert key={index} severity="error">{err.message}</Alert>
-            ))}
-            {successMessage && <Alert severity="success">{successMessage}</Alert>}
-
             <form onSubmit={handleSubmit}>
                 {/* Champs du formulaire */}
                 <div style={{

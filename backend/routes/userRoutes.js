@@ -55,7 +55,7 @@ router.post("/register", async (req, res) => {
   }
 
   await connection.query(
-    "INSERT INTO Users (email, first_name, last_name, password) VALUES (?, ?, ?, ?)",
+    "INSERT INTO Users (email, first_name, last_name, password, userType) VALUES (?, ?, ?, ?, 'Apprenant')",
     [email, firstName, lastName, hashedPassword]
   );
 
@@ -64,11 +64,11 @@ router.post("/register", async (req, res) => {
 
 // Middleware pour vérifier le token JWT
 const authenticateJWT = (req, res, next) => {
-    const token = req.headers["authorization"]?.split(" ")[1];  // Récupérer le token des cookies ou des headers (format Bearer)
-    
-    if (!token) {
-        return res.status(401).json({ message: "Token d'authentification manquant" });
-    }
+  const token = req.headers["authorization"]?.split(" ")[1];  // Récupérer le token des cookies ou des headers (format Bearer)
+
+  if (!token) {
+    return res.status(401).json({ message: "Token d'authentification manquant" });
+  }
 
   // Vérifier la validité du token
   jwt.verify(token, "votre_clé_secrète", (err, user) => {
@@ -104,7 +104,7 @@ router.get("/profile", authenticateJWT, async (req, res) => {
 // Route pour éditer les informations du profil de l'utilisateur
 router.put("/profile", authenticateJWT, async (req, res) => {
   const userId = req.user.id; // ID de l'utilisateur provenant du token
-  const { email, firstName, lastName, password } = req.body;
+  const { email, password, about, experience, photo, phoneNumber, address, userType, horaires, price, location, iban } = req.body;
 
   const connection = await DatabaseConnection.getInstance();
 
@@ -122,9 +122,17 @@ router.put("/profile", authenticateJWT, async (req, res) => {
   // Préparer les champs à mettre à jour
   const updates = {};
   if (email) updates.email = email;
-  if (firstName) updates.first_name = firstName;
-  if (lastName) updates.last_name = lastName;
   if (password) updates.password = await bcrypt.hash(password, 10);
+  if (about) updates.about = about;
+  if (experience) updates.experience = experience;
+  if (photo) updates.photo = photo;
+  if (phoneNumber) updates.phoneNumber = phoneNumber;
+  if (address) updates.address = address;
+  if (userType) updates.userType = userType;
+  if (horaires) updates.horaires = horaires;
+  if (price) updates.price = price;
+  if (location) updates.location = location;
+  if (iban) updates.iban = iban;
 
   // Construire la requête dynamique en fonction des champs fournis
   const updateFields = Object.keys(updates)

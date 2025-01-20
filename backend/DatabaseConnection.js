@@ -39,8 +39,8 @@ class DatabaseConnection {
                 port: 3306
             });
 
-            // await this.executeFile(connection, 'backend/assets/dropTables.sql');
-            // await this.executeFile(connection, 'backend/assets/createTables.sql');
+            await this.executeFile(connection, 'backend/assets/dropTables.sql');
+            await this.executeFile(connection, 'backend/assets/createTables.sql');
 
             console.log("Database initialized");
             return connection;
