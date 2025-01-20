@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Typography, Box, FormControlLabel, Checkbox, Alert } from "@mui/material";
+import { TextField, Button, Typography, Box, FormControlLabel, Checkbox, Alert, Switch, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import Login from "./login";
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 
 function Profile() {
     const [userProfile, setUserProfile] = useState(null);
+    const [datePicked, setDatePicked] = useState(dayjs());
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
+        about: "",
         email: "",
         experience: "",
         phoneNumber: "",
         address: "",
         userType: "Apprenant",
+        horaires: "",
+        price: "",
+        location: 10,
+        iban: "",
     });
     const [errors, setErrors] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
@@ -19,7 +29,7 @@ function Profile() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         console.log(token);
-        
+
 
         if (!token) {
             // window.location.href = "/login"; // Rediriger si l'utilisateur n'est pas connecté
@@ -41,11 +51,16 @@ function Profile() {
                 setForm({
                     firstName: data.firstName || "",
                     lastName: data.lastName || "",
+                    about: data.about || "",
                     email: data.email || "",
                     experience: data.experience || "",
                     phoneNumber: data.phoneNumber || "",
                     address: data.address || "",
                     userType: data.userType || "Apprenant",
+                    horaires: data.horaires || "",
+                    price: data.price || "",
+                    location: data.location || 10,
+                    iban: data.iban || "",
                 });
             } else {
                 // Gérer les erreurs ici (par exemple rediriger si le token est invalide)
@@ -113,25 +128,28 @@ function Profile() {
 
             <form onSubmit={handleSubmit}>
                 {/* Champs du formulaire */}
+                <div style={{
+                    display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between",
+
+                }}>
+                    <span style={{ marginRight: 16 }}>Prénom</span>
+                    <span>{form.firstName}</span>
+                </div>
+                <div style={{
+                    margin: "16px 0",
+                    display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between",
+                }}>
+                    <span style={{ marginRight: 16 }}>Nom</span>
+                    <span>{form.lastName}</span>
+                </div>
                 <TextField
-                    label="Prénom"
-                    name="firstName"
-                    value={form.firstName}
+                    label="A propos"
+                    name="about"
+                    value={form.about}
                     onChange={handleChange}
                     margin="normal"
                     fullWidth
-                    error={errors.some((err) => err.field === "firstName")}
-                    helperText={errors.find((err) => err.field === "firstName")?.message}
-                />
-                <TextField
-                    label="Nom"
-                    name="lastName"
-                    value={form.lastName}
-                    onChange={handleChange}
-                    margin="normal"
-                    fullWidth
-                    error={errors.some((err) => err.field === "lastName")}
-                    helperText={errors.find((err) => err.field === "lastName")?.message}
+                    multiline
                 />
                 <TextField
                     label="Email"
@@ -150,9 +168,19 @@ function Profile() {
                     onChange={handleChange}
                     margin="normal"
                     fullWidth
+                    multiline
                     error={errors.some((err) => err.field === "experience")}
                     helperText={errors.find((err) => err.field === "experience")?.message}
                 />
+                <TextField
+                    label="Photo"
+                    name="photo"
+                    value={form.photo}
+                    onChange={handleChange}
+                    margin="normal"
+                    fullWidth
+                />
+
                 <TextField
                     label="Numéro de téléphone"
                     name="phoneNumber"
@@ -176,13 +204,62 @@ function Profile() {
 
                 <FormControlLabel
                     control={
-                        <Checkbox
+                        <Switch
                             checked={form.userType === "Formateur"}
-                            onChange={(e) => setForm({ ...form, userType: e.target.checked ? "Formateur" : "Apprenant" })}
+                            onChange={(e) => setForm((prevForm) => ({
+                                ...prevForm,
+                                userType: e.target.checked ? "Formateur" : "Apprenant",
+                            }))}
                         />
                     }
-                    label="Formateur"
+                    label={form.userType === "Formateur" ? "Formateur" : "Apprenant"}
                 />
+                {form.userType === "Formateur" && (
+                    /* calendrier */
+                    <>
+                        <div style={{ margin: "16px 0" }}>
+                            <div style={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
+                                <span style={{ marginRight: 16 }}>Horaires</span>
+                                <span>{form.horaires}</span>
+                            </div>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateCalendar value={datePicked} onChange={(newValue) => setDatePicked(newValue)} />
+                            </LocalizationProvider>
+                            <TextField
+                                label="Prix/heure"
+                                name="price"
+                                value={form.price}
+                                onChange={handleChange}
+                                margin="normal"
+                                fullWidth
+                                error={errors.some((err) => err.field === "price")}
+                                helperText={errors.find((err) => err.field === "price")?.message}
+                            />
+                        </div>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Lieu du cours</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={form.location}
+                                label="Lieu du cours"
+                                onChange={handleChange}
+                            >
+                                <MenuItem value={10}>A distance</MenuItem>
+                                <MenuItem value={20}>Chez le formateur</MenuItem>
+                                <MenuItem value={30}>Chez l'apprenant</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <TextField
+                            label="IBAN"
+                            name="iban"
+                            value={form.iban}
+                            onChange={handleChange}
+                            margin="normal"
+                            fullWidth
+                        />
+                    </>
+                )}
 
                 <Button type="submit" variant="contained" color="primary" fullWidth>
                     Sauvegarder

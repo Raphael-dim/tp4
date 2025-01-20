@@ -52,14 +52,12 @@ function Login() {
         if (response.status === 200) {
             const data = await response.json();
             const token = data.token; // Récupérer le token JWT depuis la réponse
-
+            localStorage.setItem("email", email);
+            localStorage.setItem("token", token); // Stocker le token dans localStorage
             if (memory) {
-                // Mémoriser l'email et le token JWT dans localStorage
-                localStorage.setItem("email", email);
-                localStorage.setItem("token", token); // Stocker le token dans localStorage
+                localStorage.setItem("password", password);
             } else {
-                // localStorage.removeItem("email");
-                // localStorage.removeItem("token"); // Supprimer le token si "Remember me" est décoché
+                localStorage.removeItem("password");
             }
 
             console.log(data.message);

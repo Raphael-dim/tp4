@@ -65,7 +65,6 @@ router.post("/register", async (req, res) => {
 // Middleware pour vérifier le token JWT
 const authenticateJWT = (req, res, next) => {
     const token = req.headers["authorization"]?.split(" ")[1];  // Récupérer le token des cookies ou des headers (format Bearer)
-    console.log(token);
     
     if (!token) {
         return res.status(401).json({ message: "Token d'authentification manquant" });
