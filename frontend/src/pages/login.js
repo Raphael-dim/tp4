@@ -58,8 +58,8 @@ function Login() {
                 localStorage.setItem("email", email);
                 localStorage.setItem("token", token); // Stocker le token dans localStorage
             } else {
-                localStorage.removeItem("email");
-                localStorage.removeItem("token"); // Supprimer le token si "Remember me" est décoché
+                // localStorage.removeItem("email");
+                // localStorage.removeItem("token"); // Supprimer le token si "Remember me" est décoché
             }
 
             console.log(data.message);

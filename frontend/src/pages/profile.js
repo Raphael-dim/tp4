@@ -1,75 +1,105 @@
 import React, { useState, useEffect } from "react";
 import { TextField, Button, Typography, Box, FormControlLabel, Checkbox, Alert } from "@mui/material";
+import Login from "./login";
 
 function Profile() {
-    // Exemple d'envoi d'une requête pour récupérer le profil de l'utilisateur
-    const fetchProfile = async () => {
-        const response = await fetch("/api/profile", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}` // Utiliser le token stocké dans localStorage (ou cookie)
-            },
-            credentials: "include", // Si le token est dans un cookie HttpOnly
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("Profile Data:", data);
-        } else {
-            console.error("Error fetching profile:", data.message);
-        }
-    };
-
-    // Récupérer les informations de l'utilisateur depuis le localStorage
-    const user = JSON.parse(localStorage.getItem("user"));
+    const [userProfile, setUserProfile] = useState(null);
     const [form, setForm] = useState({
-        firstName: user ? user.firstName : "",
-        lastName: user ? user.lastName : "",
-        email: user ? user.email : "",
-        experience: user ? user.experience : "",
-        phoneNumber: user ? user.phoneNumber : "",
-        address: user ? user.address : "",
-        userType: user ? user.userType : "Apprenant",
+        firstName: "",
+        lastName: "",
+        email: "",
+        experience: "",
+        phoneNumber: "",
+        address: "",
+        userType: "Apprenant",
     });
-
     const [errors, setErrors] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
 
     useEffect(() => {
-        if (!user) {
-            // Rediriger si l'utilisateur n'est pas connecté
-            window.location.href = "/login";
-        }
-    }, [user]);
+        const token = localStorage.getItem("token");
+        console.log(token);
+        
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
+        if (!token) {
+            // window.location.href = "/login"; // Rediriger si l'utilisateur n'est pas connecté
+            return;
+        }
+
+        const fetchProfile = async () => {
+            const response = await fetch("http://localhost:5000/api/profile", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`, // Ajouter le token dans l'entête Authorization
+                },
+            });
+
+            if (response.status === 200) {
+                const data = await response.json();
+                setUserProfile(data);
+                // Remplir les champs du formulaire avec les données de l'utilisateur
+                setForm({
+                    firstName: data.firstName || "",
+                    lastName: data.lastName || "",
+                    email: data.email || "",
+                    experience: data.experience || "",
+                    phoneNumber: data.phoneNumber || "",
+                    address: data.address || "",
+                    userType: data.userType || "Apprenant",
+                });
+            } else {
+                // Gérer les erreurs ici (par exemple rediriger si le token est invalide)
+                // window.location.href = "/login";
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setForm((prevForm) => ({
+            ...prevForm,
+            [name]: value,
+        }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
-        const newErrors = [];
+        // Validation du formulaire (exemple)
+        const validationErrors = [];
+        if (!form.firstName) validationErrors.push({ field: "firstName", message: "Le prénom est requis" });
+        if (!form.lastName) validationErrors.push({ field: "lastName", message: "Le nom est requis" });
+        if (!form.email) validationErrors.push({ field: "email", message: "L'email est requis" });
 
-        // Validation des champs
-        if (!form.firstName) newErrors.push({ field: "firstName", message: "Veuillez remplir le champ Prénom" });
-        if (!form.lastName) newErrors.push({ field: "lastName", message: "Veuillez remplir le champ Nom" });
-        if (!form.email) newErrors.push({ field: "email", message: "Veuillez remplir le champ Email" });
-        if (!form.experience) newErrors.push({ field: "experience", message: "Veuillez remplir le champ Expérience" });
-        if (!form.phoneNumber) newErrors.push({ field: "phoneNumber", message: "Veuillez remplir le champ Numéro de téléphone" });
-        if (!form.address) newErrors.push({ field: "address", message: "Veuillez remplir le champ Adresse" });
+        if (validationErrors.length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
 
-        setErrors(newErrors);
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5000/api/profile", {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(form),
+        });
 
-        if (newErrors.length === 0) {
-            // Sauvegarder les nouvelles informations dans localStorage
-            localStorage.setItem("user", JSON.stringify(form));
-            setSuccessMessage("Les informations ont été mises à jour avec succès !");
+        if (response.status === 200) {
+            setSuccessMessage("Profil mis à jour avec succès !");
+            setErrors([]); // Réinitialiser les erreurs
+        } else {
+            const errorData = await response.json();
+            setErrors([{ message: errorData.message || "Erreur lors de la mise à jour du profil" }]);
         }
     };
+
+    if (!userProfile) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div style={{ maxWidth: 600, margin: "auto" }}>
