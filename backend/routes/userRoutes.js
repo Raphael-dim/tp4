@@ -152,19 +152,41 @@ router.put("/profile", authenticateJWT, async (req, res) => {
 });
 
 router.get("/users", authenticateJWT, async (req, res) => {
-    const connection = await DatabaseConnection.getInstance();
-  
-    try {
-      const [users] = await connection.query(
-        "SELECT id, email, first_name, last_name, userType, domaine, location FROM Users"
-      );
-  
-      res.status(200).json(users);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des utilisateurs :", error);
-      res.status(500).json({ message: "Erreur interne du serveur" });
+  const connection = await DatabaseConnection.getInstance();
+
+  try {
+    const [users] = await connection.query(
+      "SELECT id, email, first_name, last_name, userType, domaine, location FROM Users"
+    );
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs :", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+});
+
+router.delete("/profile", authenticateJWT, async (req, res) => {
+  const userId = req.user.id; // ID de l'utilisateur provenant du token
+
+  const connection = await DatabaseConnection.getInstance();
+
+  try {
+    const [user] = await connection.query("SELECT * FROM Users WHERE id = ?", [userId]);
+
+    if (user.length === 0) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
-  });
+
+    await connection.query("DELETE FROM Users WHERE id = ?", [userId]);
+
+    res.status(200).json({ message: "Profil supprimé avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du profil :", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+});
+
 
 
 export default router;
