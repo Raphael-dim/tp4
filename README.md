@@ -1,4 +1,4 @@
-# Projet Split
+# TP Recettage : Projet Split
 
 ## Cadre du projet
 Ce projet a été réalisé dans le cadre de la matière **Validation de logiciels** de la deuxième année à l'IMT Mines Alès.
