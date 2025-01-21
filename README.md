@@ -27,7 +27,7 @@ Split est une application de partage de compétences et d'expériences dans le d
 
 1. Clonez le dépôt dans votre répertoire local :
   ```bash
-   git clone https://url-du-repository.git
+   git clone https://github.com/Raphael-dim/tp4.git
    ```
 
 2. Installez les dépendances pour le **backend** et le **frontend** :
